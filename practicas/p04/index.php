@@ -30,6 +30,39 @@
         echo '<li>$house*5 es inválida porque el símbolo * no está permitido.</li>';
         echo '</ul>';
     ?>
+    <h2>Ejercicio 2</h2>
+<p>
+Proporcionar los valores de <code>$a</code>, <code>$b</code>, <code>$c</code> como sigue:
+</p>
+<?php
+    $a = "ManejadorSQL";
+    $b = 'MySQL';
+    $c = &$a;  
+
+    echo "<h4>Bloque inicial</h4>";
+    echo "<ul>";
+    echo "<li>\$a = $a</li>";
+    echo "<li>\$b = $b</li>";
+    echo "<li>\$c = $c</li>";
+    echo "</ul>";
+
+   
+    $a = "PHP server";
+    $b = &$a;   
+
+    echo "<h4>Segundo bloque</h4>";
+    echo "<ul>";
+    echo "<li>\$a = $a</li>";
+    echo "<li>\$b = $b</li>";
+    echo "<li>\$c = $c</li>";
+    echo "</ul>";
+
+    echo "<h4>Explicación</h4>";
+    echo "<p>En el primer bloque, \$c se declaró como referencia de \$a, por lo que ambos compartieron el mismo valor inicial (<em>ManejadorSQL</em>). "
+       . "Cuando en el segundo bloque se reasigna \$a con el valor <em>PHP server</em>, tanto \$a como \$c reflejan ese nuevo valor, porque \$c sigue siendo referencia de \$a. "
+       . "Además, al hacer \$b = &\$a, ahora también \$b apunta a la misma referencia que \$a. "
+       . "Por eso, al final, las tres variables muestran el mismo valor (<em>PHP server</em>).</p>";
+?>
 
 </body>
 </html>
