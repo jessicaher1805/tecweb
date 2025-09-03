@@ -135,7 +135,35 @@ echo "var_dump → <pre>";
 var_dump($z);
 echo "</pre>";
 ?>
+<h2>Ejercicio 4</h2>
+<p>Lee y muestra los valores de las variables del ejercicio anterior usando <code>$GLOBALS</code> o <code>global</code>.</p>
 
+<?php
+echo "<h4>Usando <code>\$GLOBALS</code></h4>";
+
+
+echo "<ul>";
+echo "<li>\$a = " . $GLOBALS['a'] . " (tipo: " . gettype($GLOBALS['a']) . ")</li>";
+echo "<li>\$b = " . $GLOBALS['b'] . " (tipo: " . gettype($GLOBALS['b']) . ")</li>";
+echo "<li>\$c = " . $GLOBALS['c'] . " (tipo: " . gettype($GLOBALS['c']) . ")</li>";
+echo "<li>\$z[0] = " . $GLOBALS['z'][0] . " (tipo: " . gettype($GLOBALS['z'][0]) . ")</li>";
+echo "</ul>";
+
+echo "<h4>Usando <code>global</code> dentro de una función</h4>";
+
+function mostrarVariablesGlobales() {
+    
+    global $a, $b, $c, $z;
+    
+    echo "<ul>";
+    echo "<li>\$a = $a (tipo: " . gettype($a) . ")</li>";
+    echo "<li>\$b = $b (tipo: " . gettype($b) . ")</li>";
+    echo "<li>\$c = $c (tipo: " . gettype($c) . ")</li>";
+    echo "<li>\$z[0] = " . $z[0] . " (tipo: " . gettype($z[0]) . ")</li>";
+    echo "</ul>";
+}
+
+mostrarVariablesGlobales();
 
 
 </body>
