@@ -64,5 +64,79 @@ Proporcionar los valores de <code>$a</code>, <code>$b</code>, <code>$c</code> co
        . "Por eso, al final, las tres variables muestran el mismo valor (<em>PHP server</em>).</p>";
 ?>
 
+<h2>Ejercicio 3</h2>
+<p>Muestra el contenido de cada variable inmediatamente después de cada asignación,
+verificar la evolución del tipo de estas variables (imprime todos los componentes de los
+arreglo):</p>
+
+<?php
+
+$a = "PHP5";
+echo "<h4>Después de: \$a = \"PHP5\";</h4>";
+echo "echo → \$a = $a<br />";
+echo "var_dump → ";
+var_dump($a);
+echo "<hr>";
+
+
+$z = [];       
+$z[] = &$a;    
+echo "<h4>Después de: \$z[] = &\$a;</h4>";
+echo "print_r → <pre>";
+print_r($z);
+echo "</pre>";
+echo "var_dump → <pre>";
+var_dump($z);
+echo "</pre><hr>";
+
+
+$b = "5a version de PHP";
+echo "<h4>Después de: \$b = \"5a version de PHP\";</h4>";
+echo "echo → \$b = $b<br />";
+echo "var_dump → ";
+var_dump($b);
+echo "<hr>";
+
+
+$c = (int)$b * 10; 
+echo "<h4>Después de: \$c = (int)\$b * 10;</h4>";
+echo "echo → \$c = $c<br />";
+echo "var_dump → ";
+var_dump($c);
+echo "<hr>";
+
+
+$a .= (string)$c; 
+echo "<h4>Después de: \$a .= (string)\$c;</h4>";
+echo "echo → \$a = $a<br />";
+echo "var_dump → ";
+var_dump($a);
+echo "print_r \$z (referencia a \$a): <pre>";
+print_r($z);
+echo "</pre><hr>";
+
+
+$b = (int)$b * $c; 
+echo "<h4>Después de: \$b = (int)\$b * \$c;</h4>";
+echo "echo → \$b = $b<br />";
+echo "var_dump → ";
+var_dump($b);
+echo "<hr>";
+
+
+$z[0] = "MySQL";
+echo "<h4>Después de: \$z[0] = \"MySQL\";</h4>";
+echo "echo → \$a = $a<br />";
+echo "echo → \$z[0] = " . $z[0] . "<br />";
+echo "print_r → <pre>";
+print_r($z);
+echo "</pre>";
+echo "var_dump → <pre>";
+var_dump($z);
+echo "</pre>";
+?>
+
+
+
 </body>
 </html>
