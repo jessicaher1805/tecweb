@@ -61,37 +61,53 @@
 
     <h2>Ejercicio 3</h2>
     <?php
+    echo "<ul>";
         $a = "PHP5";
-        echo "<h4>Después de: \$a = 'PHP5'</h4>";
-        echo "echo → \$a = $a<br />var_dump → "; var_dump($a); echo "<hr>";
+        echo "<li>Después de: \$a = \"PHP5\";<br>";
+        var_dump($a);
+        echo "</li>";
 
-        $z = [];
+
         $z[] = &$a;
-        echo "<h4>Después de: \$z[] = &\$a</h4>";
-        echo "print_r → <pre>"; print_r($z); echo "</pre>";
-        echo "var_dump → <pre>"; var_dump($z); echo "</pre><hr>";
+        echo "<li>Después de: \$z[] = &\$a;<br>";
+        var_dump($z);
+        echo "</li>";
+
 
         $b = "5a version de PHP";
-        echo "<h4>Después de: \$b = '5a version de PHP'</h4>";
-        echo "echo → \$b = $b<br />var_dump → "; var_dump($b); echo "<hr>";
+        echo "<li>Después de: \$b = \"5a version de PHP\";<br>";
+        var_dump($b);
+        echo "</li>";
 
-        $c = (int)$b * 10;
-        echo "<h4>Después de: \$c = (int)\$b * 10</h4>";
-        echo "echo → \$c = $c<br />var_dump → "; var_dump($c); echo "<hr>";
 
-        $a .= (string)$c;
-        echo "<h4>Después de: \$a .= \$c</h4>";
-        echo "echo → \$a = $a<br />print_r \$z → <pre>"; print_r($z); echo "</pre><hr>";
+        $c = intval($b) * 10;
+        echo "<li>Después de: \$c = intval(\$b) * 10;<br>";
+        var_dump($c);
+        echo "</li>";
 
-        $b = (int)$b * $c;
-        echo "<h4>Después de: \$b *= \$c</h4>";
-        echo "echo → \$b = $b<br />var_dump → "; var_dump($b); echo "<hr>";
+
+        $a .= $b;
+        echo "<li>Después de: \$a .= \$b;<br>";
+        var_dump($a);
+        var_dump($z);
+        echo "</li>";
+
+
+        $b = intval($b) * $c;
+        echo "<li>Después de: \$b = intval(\$b) * \$c;<br>";
+        var_dump($b);
+        echo "</li>";
+
 
         $z[0] = "MySQL";
-        echo "<h4>Después de: \$z[0] = 'MySQL'</h4>";
-        echo "echo → \$a = $a<br />echo → \$z[0] = ".$z[0]."<br />";
-        echo "print_r → <pre>"; print_r($z); echo "</pre>var_dump → <pre>"; var_dump($z); echo "</pre>";
-        
+
+        echo "<li>Después de: \$z[0] = \"MySQL\";<br>";
+        var_dump($z);
+        var_dump($a);
+        echo "</li>";
+
+
+        echo "</ul>";
     ?>
 
     <h2>Ejercicio 4</h2>
@@ -153,7 +169,15 @@ $e = ($a AND $c);
 $f = ($a XOR $b);
 
 echo "<h4>Valores booleanos con var_dump()</h4>";
-var_dump($a, $b, $c, $d, $e, $f);
+echo "<ul>";
+echo "<li>\$a = "; var_dump($a); echo "</li>";
+echo "<li>\$b = "; var_dump($b); echo "</li>";
+echo "<li>\$c = "; var_dump($c); echo "</li>";
+echo "<li>\$d = "; var_dump($d); echo "</li>";
+echo "<li>\$e = "; var_dump($e); echo "</li>";
+echo "<li>\$f = "; var_dump($f); echo "</li>";
+echo "</ul>";
+
 
 echo "<h4>Transformar booleanos \$c y \$e a un formato para echo</h4>";
 echo "\$c = " . var_export($c, true) . "<br />";
