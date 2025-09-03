@@ -161,5 +161,37 @@ echo "\$e = " . var_export($e, true) . "<br />";
 
 unset($a,$b,$c,$d,$e,$f);
 ?>
+
+<h2>Ejercicio 7</h2>
+<p>Usando la variable predefinida <code>$_SERVER</code>, determina:</p>
+<ul>
+    <li>a. La versión de Apache y PHP</li>
+    <li>b. El nombre del sistema operativo (servidor)</li>
+    <li>c. El idioma del navegador (cliente)</li>
+</ul>
+
+<?php
+
+$apache_version = $_SERVER['SERVER_SOFTWARE'] ?? 'No disponible';
+$php_version = phpversion();
+
+
+$server_os = php_uname();
+
+
+$browser_lang = $_SERVER['HTTP_ACCEPT_LANGUAGE'] ?? 'No disponible';
+
+echo "<h4>Resultados:</h4>";
+echo "<ul>";
+echo "<li>Versión Apache: $apache_version</li>";
+echo "<li>Versión PHP: $php_version</li>";
+echo "<li>Sistema operativo del servidor: $server_os</li>";
+echo "<li>Idioma del navegador: $browser_lang</li>";
+echo "</ul>";
+
+
+unset($apache_version, $php_version, $server_os, $browser_lang);
+?>
+
 </body>
 </html>
