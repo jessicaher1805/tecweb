@@ -116,11 +116,12 @@
             echo "</ul>";
         }
         mostrarGlobales();
-        
+
         unset($a,$b,$c,$z);
     ?>
 
     <h2>Ejercicio 5</h2>
+    <p>Dar el valor de las variables $a, $b, $c al final del siguiente script:</p>
     <?php
         $a = "7 personas";
         $b = (int)$a;
@@ -139,5 +140,26 @@
 
         unset($a,$b,$c);
     ?>
+
+    <h2>Ejercicio 6</h2>
+<p>Dar y comprobar el valor booleano de las variables $a, $b, $c, $d, $e y $f y muéstralas usando la función var_dump(&lt;datos&gt;).</p>
+
+<?php
+$a = "0";
+$b = "TRUE";
+$c = FALSE;
+$d = ($a OR $b);
+$e = ($a AND $c);
+$f = ($a XOR $b);
+
+echo "<h4>Valores booleanos con var_dump()</h4>";
+var_dump($a, $b, $c, $d, $e, $f);
+
+echo "<h4>Transformar booleanos \$c y \$e a un formato para echo</h4>";
+echo "\$c = " . var_export($c, true) . "<br />";
+echo "\$e = " . var_export($e, true) . "<br />";
+
+unset($a,$b,$c,$d,$e,$f);
+?>
 </body>
 </html>
