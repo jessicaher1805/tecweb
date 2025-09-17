@@ -18,20 +18,13 @@
             echo "<h3>R= " . esMultiploDe5y7($num) . "</h3>";
         }
     ?>
-    <h2>Ejemplo de POST</h2>
-    <form action="http://localhost/tecweb/practicas/p04/index.php" method="post">
-        Name: <input type="text" name="name"><br>
-        E-mail: <input type="text" name="email"><br>
-        <input type="submit">
-    </form>
-    <br>
+    <h2>Ejercicio 2</h2>
+    <p>Generar números aleatorios hasta obtener la secuencia: <b>impar, par, impar</b></p>
+
     <?php
-        if(isset($_POST["name"]) && isset($_POST["email"]))
-        {
-            echo $_POST["name"];
-            echo '<br>';
-            echo $_POST["email"];
-        }
+    if (isset($_POST['ej2'])) {
+        echo generarSecuenciaImparParImpar();
+    }
     ?>
 </body>
 </html>
