@@ -26,5 +26,22 @@
         echo generarSecuenciaImparParImpar();
     }
     ?>
+    <hr>
+    <h2>Ejercicio 3</h2>
+    <p>Utiliza un ciclo <b>while</b> y un <b>do-while</b> para encontrar el primer número entero aleatorio que sea múltiplo de un número dado.</p>
+    <p>El número se pasa por URL, ejemplo: <code>?divisor=7</code></p>
+
+    <?php
+    if (isset($_GET['divisor'])) {
+        $divisor = $_GET['divisor'];
+
+        if (is_numeric($divisor) && $divisor > 0) {
+            echo encontrarMultiploWhile($divisor);
+            echo encontrarMultiploDoWhile($divisor);
+        } else {
+            echo "<p style='color:red;'>Por favor ingresa un número válido en el parámetro divisor.</p>";
+        }
+    }
+    ?>
 </body>
 </html>

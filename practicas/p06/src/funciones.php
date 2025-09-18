@@ -43,4 +43,28 @@ function generarSecuenciaImparParImpar() {
 
     return $resultado;
 }
+
+function encontrarMultiploWhile($divisor) {
+    $num = null;
+
+    while (true) {
+        $num = rand(1, 1000); 
+        if ($num % $divisor == 0) {
+            break;
+        }
+    }
+
+    return "<p>Con <b>while</b>: El primer múltiplo de $divisor encontrado fue <b>$num</b>.</p>";
+}
+
+
+function encontrarMultiploDoWhile($divisor) {
+    
+    do {
+        $num = rand(1, 1000); 
+    } while ($num % $divisor != 0);
+
+    return "<p>Con <b>do-while</b>: El primer múltiplo de $divisor encontrado fue <b>$num</b>.</p>";
+
+}
 ?>
