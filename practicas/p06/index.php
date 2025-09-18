@@ -53,5 +53,34 @@
         echo generarArregloLetras();
     }
     ?>
+
+    <hr>
+    <h2>Ejercicio 5</h2>
+    <p>Formulario que recibe edad y sexo, y valida si cumple con la condición.</p>
+
+    <form method="post">
+    <label for="edad">Edad:</label>
+    <input type="number" id="edad" name="edad" min="1" required>
+    <br><br>
+
+    <label for="sexo">Sexo:</label>
+    <select id="sexo" name="sexo" required>
+        <option value="">--Seleccione--</option>
+        <option value="femenino">Femenino</option>
+        <option value="masculino">Masculino</option>
+    </select>
+    <br><br>
+
+    <input type="submit" name="ej5" value="Validar">
+    </form>
+
+    <?php
+    if (isset($_POST['ej5'])) {
+        $edad = $_POST['edad'];
+        $sexo = $_POST['sexo'];
+
+        echo validarEdadSexo($edad, $sexo);
+    }
+    ?>
 </body>
 </html>
