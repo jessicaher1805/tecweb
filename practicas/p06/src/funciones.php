@@ -67,4 +67,24 @@ function encontrarMultiploDoWhile($divisor) {
     return "<p>Con <b>do-while</b>: El primer múltiplo de $divisor encontrado fue <b>$num</b>.</p>";
 
 }
+
+function generarArregloLetras() {
+    $arreglo = [];
+
+    for ($i = 97; $i <= 122; $i++) {
+        $arreglo[$i] = chr($i);
+    }
+
+    $resultado = "<h3>Arreglo de letras (97 a 122)</h3>";
+    $resultado .= "<table border='1' cellpadding='5' cellspacing='0'>";
+    $resultado .= "<tr><th>Índice</th><th>Valor</th></tr>";
+
+    foreach ($arreglo as $key => $value) {
+        $resultado .= "<tr><td>$key</td><td>$value</td></tr>";
+    }
+
+    $resultado .= "</table>";
+
+    return $resultado;
+}
 ?>

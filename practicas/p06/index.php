@@ -43,5 +43,15 @@
         }
     }
     ?>
+
+    <hr>
+    <h2>Ejercicio 4</h2>
+    <p>Arreglo de índices 97 a 122 con valores de la letra 'a' a la 'z'.</p>
+
+    <?php
+    if (isset($_POST['ej4'])) {
+        echo generarArregloLetras();
+    }
+    ?>
 </body>
 </html>
