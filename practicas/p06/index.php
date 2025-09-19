@@ -82,5 +82,48 @@
         echo validarEdadSexo($edad, $sexo);
     }
     ?>
+
+    <hr>
+    <h2>Ejercicio 6</h2>
+    <p>Consulta información del parque vehicular por matrícula o ver todos los autos.</p>
+
+    <form method="post">
+        <label for="matricula">Matrícula:</label>
+        <input 
+        type="text" 
+        id="matricula" 
+        name="matricula"
+        placeholder="Ej: ABC1234"
+        value="<?php echo isset($_POST['matricula']) ? $_POST['matricula'] : ''; ?>"
+        >
+     <br><br>
+        <input type="submit" name="buscar" value="Buscar por matrícula">
+        <input type="submit" name="todos" value="Ver todos">
+    </form>
+
+    <?php
+    if (isset($_POST['buscar'])) {
+    $matricula = strtoupper(trim($_POST['matricula']));
+    $resultado = buscarPorMatricula($matricula);
+
+    if ($resultado) {
+        echo "<h3>Resultado para matrícula: $matricula</h3>";
+        echo "<pre>";
+        print_r($resultado);
+        echo "</pre>";
+    } else {
+        echo "<p style='color:red;'>No se encontró el vehículo con matrícula $matricula.</p>";
+        }
+    }
+
+    if (isset($_POST['todos'])) {
+    $parque = obtenerParqueVehicular();
+    echo "<h3>Todos los autos registrados</h3>";
+    echo "<pre>";
+    print_r($parque);
+    echo "</pre>";
+    }
+    ?>
+
 </body>
 </html>
