@@ -6,6 +6,7 @@ $basedatos = "marketzone";
 
 $conexion = new mysqli($servidor, $usuario, $contraseña, $basedatos);
 
+
 if ($conexion->connect_error) {
     die("Error de conexión: " . $conexion->connect_error);
 }
@@ -13,13 +14,13 @@ if ($conexion->connect_error) {
 
 $conexion->set_charset("utf8");
 
+
 $mensaje = "";
 $tipo_mensaje = ""; 
 
-
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     
-   
+    /
     $nombre = trim($_POST["nombre"] ?? "");
     $marca = trim($_POST["marca"] ?? "");
     $modelo = trim($_POST["modelo"] ?? "");
@@ -39,7 +40,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $mensaje = "Error: Las unidades deben ser un número entero válido.";
         $tipo_mensaje = "error";
     } else {
-       
+        
         $query_verificar = "SELECT id FROM productos WHERE nombre = ? AND modelo = ? AND marca = ? AND eliminado = 0";
         $stmt = $conexion->prepare($query_verificar);
         
@@ -55,19 +56,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $mensaje = "Error: Un producto con el mismo nombre, modelo y marca ya existe en la base de datos.";
                 $tipo_mensaje = "error";
             } else {
-                // QUERY ANTIGUA - SIN COLUMN NAMES (COMENTADA)
+                // Insertar el nuevo producto
+                // QUERY ANTIGUA - SIN COLUMN NAMES (COMENTADA - EJERCICIO 4)
                 // $query_insertar = "INSERT INTO productos VALUES (NULL, ?, ?, ?, ?, ?, ?, ?, 0)";
+                // $stmt_insert->bind_param("sssdsds", $nombre, $marca, $modelo, $precio, $detalles, $unidades, $imagen);
                 
-                $query_insertar = "INSERT INTO productos (nombre, marca, modelo, precio, detalles, unidades, imagen, eliminado) 
-                                  VALUES (?, ?, ?, ?, ?, ?, ?, 0)";
+                $query_insertar = "INSERT INTO productos (nombre, marca, modelo, precio, detalles, unidades, imagen) 
+                                  VALUES (?, ?, ?, ?, ?, ?, ?)";
                 $stmt_insert = $conexion->prepare($query_insertar);
                 
                 if ($stmt_insert === false) {
                     $mensaje = "Error en la preparación de la inserción: " . $conexion->error;
                     $tipo_mensaje = "error";
                 } else {
-                    
-                    $stmt_insert->bind_param("sssdsds", $nombre, $marca, $modelo, $precio, $detalles, $unidades, $imagen);
                     
                     if ($stmt_insert->execute()) {
                         $id_insertado = $conexion->insert_id;
