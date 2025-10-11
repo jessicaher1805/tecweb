@@ -1,12 +1,10 @@
 <?php
-$host = "localhost";
-$user = "root";
-$password = "12345678a";  
-$database = "marketzone";  
+$servidor = "localhost";
+$usuario = "root";
+$contraseña = "12345678a";
+$basedatos = "marketzone"; 
 
-
-$conexion = new mysqli($host, $user, $password, $database);
-
+$conexion = new mysqli($servidor, $usuario, $contraseña, $basedatos);
 
 if ($conexion->connect_error) {
     die("Error de conexión: " . $conexion->connect_error);
@@ -15,82 +13,88 @@ if ($conexion->connect_error) {
 
 $conexion->set_charset("utf8");
 
-
-$nombre = isset($_POST['nombre']) ? trim($_POST['nombre']) : '';
-$marca = isset($_POST['marca']) ? trim($_POST['marca']) : '';
-$modelo = isset($_POST['modelo']) ? trim($_POST['modelo']) : '';
-$precio = isset($_POST['precio']) ? $_POST['precio'] : 0;
-$detalles = isset($_POST['detalles']) ? trim($_POST['detalles']) : '';
-$unidades = isset($_POST['unidades']) ? $_POST['unidades'] : 0;
-$imagen = isset($_POST['imagen']) ? trim($_POST['imagen']) : 'img/default.jpg';
-
-
 $mensaje = "";
 $tipo_mensaje = ""; 
-$datos_producto = array();
 
 
-if (empty($nombre) || empty($marca) || empty($modelo)) {
-    $mensaje = "Error: Todos los campos obligatorios deben ser completados.";
-    $tipo_mensaje = "error";
-} else {
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
     
-    $query_validacion = "SELECT id FROM productos 
-                         WHERE nombre = ? AND marca = ? AND modelo = ?";
+   
+    $nombre = trim($_POST["nombre"] ?? "");
+    $marca = trim($_POST["marca"] ?? "");
+    $modelo = trim($_POST["modelo"] ?? "");
+    $precio = $_POST["precio"] ?? "";
+    $detalles = trim($_POST["detalles"] ?? "");
+    $unidades = $_POST["unidades"] ?? "";
+    $imagen = trim($_POST["imagen"] ?? "");
     
-    $stmt = $conexion->prepare($query_validacion);
-    $stmt->bind_param("sss", $nombre, $marca, $modelo);
-    $stmt->execute();
-    $resultado = $stmt->get_result();
     
-    if ($resultado->num_rows > 0) {
-        $mensaje = "Error: Ya existe un producto con ese nombre, marca y modelo.";
+    if (empty($nombre) || empty($marca) || empty($modelo) || empty($precio) || empty($unidades)) {
+        $mensaje = "Error: Todos los campos obligatorios deben ser completados.";
+        $tipo_mensaje = "error";
+    } else if (!is_numeric($precio) || $precio < 0) {
+        $mensaje = "Error: El precio debe ser un número válido y mayor o igual a 0.";
+        $tipo_mensaje = "error";
+    } else if (!is_numeric($unidades) || $unidades < 0) {
+        $mensaje = "Error: Las unidades deben ser un número entero válido.";
         $tipo_mensaje = "error";
     } else {
+       
+        $query_verificar = "SELECT id FROM productos WHERE nombre = ? AND modelo = ? AND marca = ? AND eliminado = 0";
+        $stmt = $conexion->prepare($query_verificar);
         
-        $query_insert = "INSERT INTO productos 
-                         (nombre, marca, modelo, precio, detalles, unidades, imagen) 
-                         VALUES (?, ?, ?, ?, ?, ?, ?)";
-        
-        $stmt_insert = $conexion->prepare($query_insert);
-        $stmt_insert->bind_param("sssdsis", $nombre, $marca, $modelo, $precio, 
-                                  $detalles, $unidades, $imagen);
-        
-        if ($stmt_insert->execute()) {
-            $mensaje = "¡Producto registrado exitosamente!";
-            $tipo_mensaje = "exito";
-            
-            
-            $datos_producto = array(
-                'id' => $conexion->insert_id,
-                'nombre' => $nombre,
-                'marca' => $marca,
-                'modelo' => $modelo,
-                'precio' => $precio,
-                'detalles' => $detalles,
-                'unidades' => $unidades,
-                'imagen' => $imagen
-            );
-        } else {
-            $mensaje = "Error al insertar el producto: " . $conexion->error;
+        if ($stmt === false) {
+            $mensaje = "Error en la preparación de la consulta: " . $conexion->error;
             $tipo_mensaje = "error";
+        } else {
+            $stmt->bind_param("sss", $nombre, $modelo, $marca);
+            $stmt->execute();
+            $resultado = $stmt->get_result();
+            
+            if ($resultado->num_rows > 0) {
+                $mensaje = "Error: Un producto con el mismo nombre, modelo y marca ya existe en la base de datos.";
+                $tipo_mensaje = "error";
+            } else {
+                // QUERY ANTIGUA - SIN COLUMN NAMES (COMENTADA)
+                // $query_insertar = "INSERT INTO productos VALUES (NULL, ?, ?, ?, ?, ?, ?, ?, 0)";
+                
+                $query_insertar = "INSERT INTO productos (nombre, marca, modelo, precio, detalles, unidades, imagen, eliminado) 
+                                  VALUES (?, ?, ?, ?, ?, ?, ?, 0)";
+                $stmt_insert = $conexion->prepare($query_insertar);
+                
+                if ($stmt_insert === false) {
+                    $mensaje = "Error en la preparación de la inserción: " . $conexion->error;
+                    $tipo_mensaje = "error";
+                } else {
+                    
+                    $stmt_insert->bind_param("sssdsds", $nombre, $marca, $modelo, $precio, $detalles, $unidades, $imagen);
+                    
+                    if ($stmt_insert->execute()) {
+                        $id_insertado = $conexion->insert_id;
+                        $mensaje = "¡Producto insertado correctamente!";
+                        $tipo_mensaje = "exito";
+                    } else {
+                        $mensaje = "Error al insertar el producto: " . $stmt_insert->error;
+                        $tipo_mensaje = "error";
+                    }
+                    
+                    $stmt_insert->close();
+                }
+            }
+            
+            $stmt->close();
         }
-        
-        $stmt_insert->close();
     }
     
-    $stmt->close();
+    $conexion->close();
 }
-
-$conexion->close();
 ?>
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Resultado del Registro</title>
+    <title>Resultado - Registro de Producto</title>
     <style>
         * {
             margin: 0;
@@ -109,150 +113,106 @@ $conexion->close();
         }
         
         .container {
-            background: white;
+            max-width: 600px;
+            margin: 0 auto;
             padding: 40px;
             border-radius: 15px;
             box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            max-width: 600px;
-            width: 100%;
-        }
-        
-        .mensaje {
-            padding: 20px;
-            border-radius: 10px;
-            margin-bottom: 30px;
-            font-size: 18px;
-            text-align: center;
+            background: white;
         }
         
         .exito {
-            background: #d4edda;
-            color: #155724;
+            background-color: #d4edda;
             border: 2px solid #c3e6cb;
+            color: #155724;
         }
         
         .error {
-            background: #f8d7da;
-            color: #721c24;
+            background-color: #f8d7da;
             border: 2px solid #f5c6cb;
+            color: #721c24;
         }
         
-        .datos-producto {
-            background: #f8f9fa;
-            padding: 25px;
-            border-radius: 10px;
+        h1 {
             margin-bottom: 20px;
+            font-size: 24px;
         }
         
-        .datos-producto h2 {
+        .resumen {
+            margin-top: 30px;
+            background-color: #f9f9f9;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #4CAF50;
+        }
+        
+        .resumen h2 {
+            font-size: 18px;
+            margin-bottom: 15px;
             color: #333;
-            margin-bottom: 20px;
-            border-bottom: 3px solid #667eea;
-            padding-bottom: 10px;
         }
         
-        .dato {
-            display: flex;
-            padding: 10px 0;
-            border-bottom: 1px solid #dee2e6;
+        .resumen p {
+            margin: 10px 0;
+            line-height: 1.6;
         }
         
-        .dato:last-child {
-            border-bottom: none;
-        }
-        
-        .dato strong {
-            width: 150px;
-            color: #555;
-        }
-        
-        .dato span {
-            flex: 1;
+        .resumen strong {
             color: #333;
+            min-width: 150px;
+            display: inline-block;
         }
         
         .botones {
+            margin-top: 30px;
             display: flex;
-            gap: 15px;
-            margin-top: 20px;
+            gap: 10px;
         }
         
-        .btn {
+        a {
             flex: 1;
-            padding: 12px 24px;
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            text-decoration: none;
+            padding: 14px;
             text-align: center;
-            transition: all 0.3s;
-        }
-        
-        .btn-primary {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            transition: transform 0.2s, box-shadow 0.2s;
         }
         
-        .btn-secondary {
-            background: #6c757d;
-            color: white;
-        }
-        
-        .btn:hover {
+        a:hover {
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+        
+        .error a {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="mensaje <?php echo $tipo_mensaje; ?>">
-            <?php echo $mensaje; ?>
-        </div>
+    <div class="container <?php echo $tipo_mensaje; ?>">
+        <h1><?php echo $tipo_mensaje === "exito" ? "✓ Éxito" : "✗ Error"; ?></h1>
+        <p><?php echo htmlspecialchars($mensaje); ?></p>
         
-        <?php if ($tipo_mensaje === 'exito' && !empty($datos_producto)): ?>
-            <div class="datos-producto">
-                <h2>📦 Resumen del Producto Registrado</h2>
-                <div class="dato">
-                    <strong>ID:</strong>
-                    <span><?php echo $datos_producto['id']; ?></span>
-                </div>
-                <div class="dato">
-                    <strong>Nombre:</strong>
-                    <span><?php echo htmlspecialchars($datos_producto['nombre']); ?></span>
-                </div>
-                <div class="dato">
-                    <strong>Marca:</strong>
-                    <span><?php echo htmlspecialchars($datos_producto['marca']); ?></span>
-                </div>
-                <div class="dato">
-                    <strong>Modelo:</strong>
-                    <span><?php echo htmlspecialchars($datos_producto['modelo']); ?></span>
-                </div>
-                <div class="dato">
-                    <strong>Precio:</strong>
-                    <span>$<?php echo number_format($datos_producto['precio'], 2); ?></span>
-                </div>
-                <div class="dato">
-                    <strong>Detalles:</strong>
-                    <span><?php echo htmlspecialchars($datos_producto['detalles']); ?></span>
-                </div>
-                <div class="dato">
-                    <strong>Unidades:</strong>
-                    <span><?php echo $datos_producto['unidades']; ?></span>
-                </div>
-                <div class="dato">
-                    <strong>Imagen:</strong>
-                    <span><?php echo htmlspecialchars($datos_producto['imagen']); ?></span>
-                </div>
+        <?php if ($tipo_mensaje === "exito"): ?>
+            <div class="resumen">
+                <h2>Resumen del Producto Registrado:</h2>
+                <p><strong>Nombre:</strong> <?php echo htmlspecialchars($nombre); ?></p>
+                <p><strong>Marca:</strong> <?php echo htmlspecialchars($marca); ?></p>
+                <p><strong>Modelo:</strong> <?php echo htmlspecialchars($modelo); ?></p>
+                <p><strong>Precio:</strong> $<?php echo number_format($precio, 2); ?></p>
+                <p><strong>Unidades:</strong> <?php echo htmlspecialchars($unidades); ?></p>
+                <p><strong>Detalles:</strong> <?php echo htmlspecialchars($detalles); ?></p>
+                <p><strong>Imagen:</strong> <?php echo htmlspecialchars($imagen); ?></p>
             </div>
         <?php endif; ?>
         
         <div class="botones">
-            <a href="formulario_productos.html" class="btn btn-primary">Registrar Otro Producto</a>
-            <a href="get_productos_vigentes.php" class="btn btn-secondary">Ver Productos</a>
+            <a href="formulario_productos.html">Registrar Otro Producto</a>
         </div>
     </div>
 </body>
