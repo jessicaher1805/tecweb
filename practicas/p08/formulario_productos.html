@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro de Productos</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 500px;
+            width: 100%;
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+            text-align: center;
+            font-size: 28px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        
+        input[type="text"],
+        input[type="number"],
+        textarea,
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+        
+        input:focus,
+        textarea:focus,
+        select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+        
+        .required {
+            color: #e74c3c;
+        }
+        
+        button {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-top: 10px;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        .info {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #2196f3;
+        }
+        
+        .info p {
+            color: #1976d2;
+            font-size: 13px;
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📦 Registro de Productos</h1>
+        
+        <div class="info">
+            <p><strong>Nota:</strong> Todos los campos son obligatorios</p>
+            <p>El ID se genera automáticamente</p>
+        </div>
+        
+        
+        <form action="http://localhost/tecweb/practicas/p08/set_producto_v2.php" method="POST" id="formProducto">
+            
+            <div class="form-group">
+                <label for="nombre">Nombre del Producto <span class="required">*</span></label>
+                <input type="text" id="nombre" name="nombre" required 
+                       placeholder="Ej: Laptop HP Pavilion" maxlength="100">
+            </div>
+            
+            <div class="form-group">
+                <label for="marca">Marca <span class="required">*</span></label>
+                <input type="text" id="marca" name="marca" required 
+                       placeholder="Ej: HP" maxlength="25">
+            </div>
+            
+            <div class="form-group">
+                <label for="modelo">Modelo <span class="required">*</span></label>
+                <input type="text" id="modelo" name="modelo" required 
+                       placeholder="Ej: Pavilion 15-eh2004la" maxlength="25">
+            </div>
+            
+            <div class="form-group">
+                <label for="precio">Precio <span class="required">*</span></label>
+                <input type="number" id="precio" name="precio" required 
+                       step="0.01" min="0" placeholder="Ej: 15999.99">
+            </div>
+            
+            <div class="form-group">
+                <label for="detalles">Detalles</label>
+                <textarea id="detalles" name="detalles" 
+                          placeholder="Describe las características del producto..." maxlength="250"></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label for="unidades">Unidades Disponibles <span class="required">*</span></label>
+                <input type="number" id="unidades" name="unidades" required 
+                       min="0" placeholder="Ej: 10" value="0">
+            </div>
+            
+            <div class="form-group">
+                <label for="imagen">URL de la Imagen</label>
+                <input type="text" id="imagen" name="imagen" 
+                       placeholder="Ej: img/producto.jpg" maxlength="100">
+            </div>
+            
+            <button type="submit">Registrar Producto</button>
+        </form>
+    </div>
+    
+    <script>
+        // Validación adicional del lado del cliente
+        document.getElementById('formProducto').addEventListener('submit', function(e) {
+            const nombre = document.getElementById('nombre').value.trim();
+            const marca = document.getElementById('marca').value.trim();
+            const modelo = document.getElementById('modelo').value.trim();
+            const precio = parseFloat(document.getElementById('precio').value);
+            const unidades = parseInt(document.getElementById('unidades').value);
+            
+            if (nombre === '' || marca === '' || modelo === '') {
+                alert('Por favor completa todos los campos obligatorios');
+                e.preventDefault();
+                return false;
+            }
+            
+            if (precio <= 0) {
+                alert('El precio debe ser mayor a 0');
+                e.preventDefault();
+                return false;
+            }
+            
+            if (unidades < 0) {
+                alert('Las unidades no pueden ser negativas');
+                e.preventDefault();
+                return false;
+            }
+            
+            return true;
+        });
+    </script>
+</body>
+</html>
