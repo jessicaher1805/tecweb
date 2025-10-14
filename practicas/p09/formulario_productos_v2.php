@@ -1,6 +1,7 @@
 <?php
 session_start();
 
+
 $marcas = array('Apple', 'Samsung', 'Xiaomi', 'Motorola', 'OnePlus', 'Nokia', 'Huawei', 'Google Pixel', 'LG', 'Sony');
 
 
@@ -179,7 +180,7 @@ if(isset($_POST['id_producto']) && !empty($_POST['id_producto']) && isset($_POST
     <div class="container">
         <h1>📱 Productos</h1>
         
-        <form id="miFormulario" onsubmit="return validarFormulario()" method="post" action="set_producto_v2.php">
+        <form id="miFormulario" onsubmit="return validarFormulario()" method="post" action="<?= !empty($id_producto) ? 'update_producto.php' : 'set_producto_v2.php' ?>">
            
             <?php if(!empty($id_producto)): ?>
                 <input type="hidden" name="id_producto" value="<?= $id_producto ?>">
@@ -279,7 +280,7 @@ if(isset($_POST['id_producto']) && !empty($_POST['id_producto']) && isset($_POST
             
             let esValido = true;
             
-        
+           
             if (nombre === '') {
                 mostrarError('errorNombre', 'El nombre es obligatorio');
                 esValido = false;
@@ -294,7 +295,7 @@ if(isset($_POST['id_producto']) && !empty($_POST['id_producto']) && isset($_POST
                 esValido = false;
             }
             
-            
+           
             if (modelo === '') {
                 mostrarError('errorModelo', 'El modelo es obligatorio');
                 esValido = false;
@@ -312,13 +313,13 @@ if(isset($_POST['id_producto']) && !empty($_POST['id_producto']) && isset($_POST
                 esValido = false;
             }
             
-      
+          
             if (detalles.length > 250) {
                 mostrarError('errorDetalles', 'Los detalles no pueden exceder 250 caracteres');
                 esValido = false;
             }
             
-           
+          
             if (isNaN(unidades) || unidades < 0) {
                 mostrarError('errorUnidades', 'Las unidades deben ser mayor o igual a 0');
                 esValido = false;
