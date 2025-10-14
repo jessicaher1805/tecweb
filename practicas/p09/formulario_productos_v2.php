@@ -1,51 +1,55 @@
 <?php
-$esEdicion = false;
-$datosProducto = array(
-    'id' => '',
-    'nombre' => '',
-    'marca' => '',
-    'modelo' => '',
-    'precio' => '',
-    'detalles' => '',
-    'unidades' => '',
-    'imagen' => ''
-);
-
-if (isset($_GET['id']) && !empty($_GET['id'])) {
-    $esEdicion = true;
-    $id = intval($_GET['id']);
-    
-    @$link = new mysqli('localhost', 'root', '12345678a', 'marketzone');
-    
-    if ($link->connect_errno) {
-        die('Falló la conexión: ' . $link->connect_error);
-    }
-    
-    $stmt = $link->prepare("SELECT id, nombre, marca, modelo, precio, detalles, unidades, imagen FROM productos WHERE id = ?");
-    $stmt->bind_param("i", $id);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    
-    if ($result && $result->num_rows > 0) {
-        $datosProducto = $result->fetch_assoc();
-    } else {
-        $esEdicion = false;
-    }
-    
-    $stmt->close();
-    $link->close();
-}
+session_start();
 
 $marcas = array('Apple', 'Samsung', 'Xiaomi', 'Motorola', 'OnePlus', 'Nokia', 'Huawei', 'Google Pixel', 'LG', 'Sony');
+
+
+$nombre = '';
+$marca = '';
+$modelo = '';
+$precio = '';
+$detalles = '';
+$unidades = '0';
+$imagen = '';
+$id_producto = '';
+
+
+if(isset($_POST['id_producto']) && !empty($_POST['id_producto']) && isset($_POST['accion']) && $_POST['accion'] === 'editar') {
+    $id = intval($_POST['id_producto']);
+    
+    $link = new mysqli('localhost', 'root', '12345678a', 'marketzone');
+    
+    if (!$link->connect_errno) {
+        $stmt = $link->prepare("SELECT * FROM productos WHERE id = ? AND eliminado = 0");
+        $stmt->bind_param("i", $id);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        
+        if($producto = $result->fetch_assoc()) {
+            $id_producto = $producto['id'];
+            $nombre = utf8_encode($producto['nombre']);
+            $marca = utf8_encode($producto['marca']);
+            $modelo = utf8_encode($producto['modelo']);
+            $precio = $producto['precio'];
+            $detalles = utf8_encode($producto['detalles']);
+            $unidades = $producto['unidades'];
+            $imagen = $producto['imagen'];
+        }
+        
+        $stmt->close();
+        $link->close();
+    }
+}
 ?>
 
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?php echo $esEdicion ? 'Editar Producto' : 'Registro de Productos'; ?></title>
-    <style>
+    <title>Formulario de Productos</title>
+    <style type="text/css">
         * {
             margin: 0;
             padding: 0;
@@ -56,9 +60,6 @@ $marcas = array('Apple', 'Samsung', 'Xiaomi', 'Motorola', 'OnePlus', 'Nokia', 'H
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
             padding: 20px;
         }
         
@@ -67,43 +68,67 @@ $marcas = array('Apple', 'Samsung', 'Xiaomi', 'Motorola', 'OnePlus', 'Nokia', 'H
             padding: 40px;
             border-radius: 15px;
             box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            max-width: 500px;
-            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
         }
         
         h1 {
             color: #333;
-            margin-bottom: 30px;
-            text-align: center;
+            margin-bottom: 10px;
             font-size: 28px;
         }
         
-        .form-group {
+        legend {
+            color: #667eea;
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #667eea;
+        }
+        
+        fieldset {
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 20px;
             margin-bottom: 20px;
         }
         
+        ul {
+            list-style-type: none;
+        }
+        
+        li {
+            margin-bottom: 15px;
+            display: flex;
+            flex-direction: column;
+        }
+        
         label {
-            display: block;
             margin-bottom: 8px;
             color: #555;
             font-weight: 600;
             font-size: 14px;
         }
         
+        .required {
+            color: #e74c3c;
+        }
+        
         input[type="text"],
         input[type="number"],
         textarea,
         select {
-            width: 100%;
             padding: 12px;
             border: 2px solid #e0e0e0;
             border-radius: 8px;
             font-size: 14px;
-            transition: all 0.3s;
             font-family: inherit;
+            transition: all 0.3s;
         }
         
-        input:focus,
+        input[type="text"]:focus,
+        input[type="number"]:focus,
         textarea:focus,
         select:focus {
             outline: none;
@@ -116,11 +141,11 @@ $marcas = array('Apple', 'Samsung', 'Xiaomi', 'Motorola', 'OnePlus', 'Nokia', 'H
             min-height: 80px;
         }
         
-        .required {
-            color: #e74c3c;
+        p {
+            margin-top: 20px;
         }
         
-        button {
+        input[type="submit"] {
             width: 100%;
             padding: 14px;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -131,30 +156,15 @@ $marcas = array('Apple', 'Samsung', 'Xiaomi', 'Motorola', 'OnePlus', 'Nokia', 'H
             font-weight: 600;
             cursor: pointer;
             transition: transform 0.2s, box-shadow 0.2s;
-            margin-top: 10px;
         }
         
-        button:hover {
+        input[type="submit"]:hover {
             transform: translateY(-2px);
             box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
         }
         
-        button:active {
+        input[type="submit"]:active {
             transform: translateY(0);
-        }
-        
-        .info {
-            background: #e3f2fd;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            border-left: 4px solid #2196f3;
-        }
-        
-        .info p {
-            color: #1976d2;
-            font-size: 13px;
-            margin: 5px 0;
         }
         
         .error-message {
@@ -167,106 +177,109 @@ $marcas = array('Apple', 'Samsung', 'Xiaomi', 'Motorola', 'OnePlus', 'Nokia', 'H
 </head>
 <body>
     <div class="container">
-        <h1><?php echo $esEdicion ? '📱 Editar Smartphone' : '📱 Registro de Smartphones'; ?></h1>
+        <h1>📱 Productos</h1>
         
-        <div class="info">
-            <p><strong>Nota:</strong> Los campos marcados con * son obligatorios</p>
-            <?php if (!$esEdicion): ?>
-                <p>El ID se genera automáticamente</p>
-            <?php else: ?>
-                <p>Editando producto ID: <?php echo $datosProducto['id']; ?></p>
-            <?php endif; ?>
-        </div>
-        
-        <form action="<?php echo $esEdicion ? 'update_producto.php' : 'set_producto_v2.php'; ?>" method="POST" id="formProducto">
-            
-            <?php if ($esEdicion): ?>
-                <input type="hidden" name="id" value="<?php echo $datosProducto['id']; ?>">
+        <form id="miFormulario" onsubmit="return validarFormulario()" method="post" action="set_producto_v2.php">
+           
+            <?php if(!empty($id_producto)): ?>
+                <input type="hidden" name="id_producto" value="<?= $id_producto ?>">
             <?php endif; ?>
             
-            <div class="form-group">
-                <label for="nombre">Nombre del Smartphone <span class="required">*</span></label>
-                <input type="text" id="nombre" name="nombre" required 
-                       placeholder="Ej: iPhone 15 Pro Max" maxlength="100"
-                       value="<?php echo htmlspecialchars($datosProducto['nombre']); ?>">
-                <div class="error-message" id="errorNombre"></div>
-            </div>
+            <fieldset>
+                <legend><?= !empty($id_producto) ? 'Actualiza los datos del smartphone:' : 'Registra un nuevo smartphone:' ?></legend>
+                
+                <ul>
+                    <li>
+                        <label>Nombre <span class="required">*</span></label>
+                        <input type="text" name="nombre" 
+                               value="<?= htmlspecialchars($nombre) ?>"
+                               placeholder="Ej: iPhone 15 Pro Max" 
+                               maxlength="100">
+                        <div class="error-message" id="errorNombre"></div>
+                    </li>
+                    
+                    <li>
+                        <label>Marca <span class="required">*</span></label>
+                        <select name="marca">
+                            <option value="">-- Selecciona una marca --</option>
+                            <?php foreach ($marcas as $m): ?>
+                                <option value="<?= $m ?>" <?= ($marca === $m) ? 'selected' : '' ?>>
+                                    <?= $m ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                        <div class="error-message" id="errorMarca"></div>
+                    </li>
+                    
+                    <li>
+                        <label>Modelo <span class="required">*</span></label>
+                        <input type="text" name="modelo" 
+                               value="<?= htmlspecialchars($modelo) ?>"
+                               placeholder="Ej: A3111" 
+                               maxlength="25">
+                        <div class="error-message" id="errorModelo"></div>
+                    </li>
+                    
+                    <li>
+                        <label>Precio <span class="required">*</span></label>
+                        <input type="number" name="precio" 
+                               value="<?= htmlspecialchars($precio) ?>"
+                               placeholder="Ej: 15999.99"
+                               step="0.01" 
+                               min="0">
+                        <div class="error-message" id="errorPrecio"></div>
+                    </li>
+                    
+                    <li>
+                        <label>Detalles</label>
+                        <textarea name="detalles" 
+                                  placeholder="Describe las características del smartphone..."
+                                  maxlength="250"><?= htmlspecialchars($detalles) ?></textarea>
+                        <div class="error-message" id="errorDetalles"></div>
+                    </li>
+                    
+                    <li>
+                        <label>Unidades Disponibles <span class="required">*</span></label>
+                        <input type="number" name="unidades" 
+                               value="<?= htmlspecialchars($unidades) ?>"
+                               placeholder="Ej: 10"
+                               min="0">
+                        <div class="error-message" id="errorUnidades"></div>
+                    </li>
+                    
+                    <li>
+                        <label>URL de la Imagen</label>
+                        <input type="text" name="imagen" 
+                               value="<?= htmlspecialchars($imagen) ?>"
+                               placeholder="Ej: img/smartphone.jpg"
+                               maxlength="100">
+                        <div class="error-message" id="errorImagen"></div>
+                    </li>
+                </ul>
+            </fieldset>
             
-            <div class="form-group">
-                <label for="marca">Marca <span class="required">*</span></label>
-                <select id="marca" name="marca" required>
-                    <option value="">-- Selecciona una marca --</option>
-                    <?php foreach ($marcas as $m): ?>
-                        <option value="<?php echo $m; ?>" 
-                                <?php echo ($datosProducto['marca'] === $m) ? 'selected' : ''; ?>>
-                            <?php echo $m; ?>
-                        </option>
-                    <?php endforeach; ?>
-                </select>
-                <div class="error-message" id="errorMarca"></div>
-            </div>
-            
-            <div class="form-group">
-                <label for="modelo">Modelo <span class="required">*</span></label>
-                <input type="text" id="modelo" name="modelo" required 
-                       placeholder="Ej: A3111" maxlength="25"
-                       value="<?php echo htmlspecialchars($datosProducto['modelo']); ?>">
-                <div class="error-message" id="errorModelo"></div>
-            </div>
-            
-            <div class="form-group">
-                <label for="precio">Precio <span class="required">*</span></label>
-                <input type="number" id="precio" name="precio" required 
-                       step="0.01" min="0" placeholder="Ej: 15999.99"
-                       value="<?php echo $datosProducto['precio']; ?>">
-                <div class="error-message" id="errorPrecio"></div>
-            </div>
-            
-            <div class="form-group">
-                <label for="detalles">Detalles</label>
-                <textarea id="detalles" name="detalles" 
-                          placeholder="Describe las características del smartphone..." maxlength="250"><?php echo htmlspecialchars($datosProducto['detalles']); ?></textarea>
-                <div class="error-message" id="errorDetalles"></div>
-            </div>
-            
-            <div class="form-group">
-                <label for="unidades">Unidades Disponibles <span class="required">*</span></label>
-                <input type="number" id="unidades" name="unidades" required 
-                       min="0" placeholder="Ej: 10"
-                       value="<?php echo $datosProducto['unidades'] === '' ? '0' : $datosProducto['unidades']; ?>">
-                <div class="error-message" id="errorUnidades"></div>
-            </div>
-            
-            <div class="form-group">
-                <label for="imagen">URL de la Imagen</label>
-                <input type="text" id="imagen" name="imagen" 
-                       placeholder="Ej: img/smartphone.jpg" maxlength="100"
-                       value="<?php echo htmlspecialchars($datosProducto['imagen']); ?>">
-                <div class="error-message" id="errorImagen"></div>
-            </div>
-            
-            <button type="submit"><?php echo $esEdicion ? '✅ Actualizar Producto' : '✅ Registrar Producto'; ?></button>
+            <p>
+                <input type="submit" value="<?= !empty($id_producto) ? '✅ ACTUALIZAR' : '✅ REGISTRAR' ?>">
+            </p>
         </form>
     </div>
     
     <script>
-        document.getElementById('formProducto').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            
+        function validarFormulario() {
+           
             document.querySelectorAll('.error-message').forEach(el => el.style.display = 'none');
             
-            const nombre = document.getElementById('nombre').value.trim();
-            const marca = document.getElementById('marca').value.trim();
-            const modelo = document.getElementById('modelo').value.trim();
-            const precio = parseFloat(document.getElementById('precio').value);
-            const detalles = document.getElementById('detalles').value.trim();
-            const unidades = parseInt(document.getElementById('unidades').value);
-            const imagen = document.getElementById('imagen').value.trim();
+            const nombre = document.querySelector('input[name="nombre"]').value.trim();
+            const marca = document.querySelector('select[name="marca"]').value.trim();
+            const modelo = document.querySelector('input[name="modelo"]').value.trim();
+            const precio = parseFloat(document.querySelector('input[name="precio"]').value);
+            const detalles = document.querySelector('textarea[name="detalles"]').value.trim();
+            const unidades = parseInt(document.querySelector('input[name="unidades"]').value);
+            const imagen = document.querySelector('input[name="imagen"]').value.trim();
             
             let esValido = true;
             
-            
+        
             if (nombre === '') {
                 mostrarError('errorNombre', 'El nombre es obligatorio');
                 esValido = false;
@@ -275,7 +288,7 @@ $marcas = array('Apple', 'Samsung', 'Xiaomi', 'Motorola', 'OnePlus', 'Nokia', 'H
                 esValido = false;
             }
             
-          
+            
             if (marca === '') {
                 mostrarError('errorMarca', 'Debes seleccionar una marca');
                 esValido = false;
@@ -299,27 +312,25 @@ $marcas = array('Apple', 'Samsung', 'Xiaomi', 'Motorola', 'OnePlus', 'Nokia', 'H
                 esValido = false;
             }
             
-            
+      
             if (detalles.length > 250) {
                 mostrarError('errorDetalles', 'Los detalles no pueden exceder 250 caracteres');
                 esValido = false;
             }
             
-            
+           
             if (isNaN(unidades) || unidades < 0) {
                 mostrarError('errorUnidades', 'Las unidades deben ser mayor o igual a 0');
                 esValido = false;
             }
             
-            let imagenFinal = imagen || 'img/imagen.png';
-            if (!imagen) {
-                document.getElementById('imagen').value = imagenFinal;
+            
+            if (imagen === '') {
+                document.querySelector('input[name="imagen"]').value = 'img/smartphone_default.jpg';
             }
             
-            if (esValido) {
-                this.submit();
-            }
-        });
+            return esValido;
+        }
         
         function mostrarError(idElemento, mensaje) {
             const elemento = document.getElementById(idElemento);
