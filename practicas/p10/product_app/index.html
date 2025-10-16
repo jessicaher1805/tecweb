@@ -3,6 +3,16 @@
   <head>
     <meta charset="UTF-8">
     <title>Product App</title>
+    <style>
+      .search-buttons {
+        display: inline-flex;
+        gap: 5px;
+      }
+      .search-buttons button {
+        padding: 5px 10px;
+        cursor: pointer;
+      }
+    </style>
   </head>
   <body onload="init()">
 
@@ -12,8 +22,11 @@
       
         <ul></ul>
         <form>
-          <input name="search" id="search" type="search" placeholder="ID">
-          <button type="submit" onclick="buscarID(event)">Buscar</button>
+          <input name="search" id="search" type="search" placeholder="ID o nombre/marca/detalles">
+          <div class="search-buttons">
+            <button type="button" onclick="buscarID(event)">Buscar por ID</button>
+            <button type="button" onclick="buscarProducto()">Buscar Producto</button>
+          </div>
         </form>
     </nav>
 
