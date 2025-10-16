@@ -175,3 +175,105 @@ function buscarProducto() {
     };
     client.send("search=" + search);
 }
+
+
+function agregarProducto(e) {
+    e.preventDefault();
+
+   
+    var productoJsonString = document.getElementById('description').value;
+    
+   
+    var nombre = document.getElementById('name').value.trim();
+    
+    
+    if (nombre === '' || nombre.length === 0) {
+        alert('ERROR: El nombre del producto es obligatorio');
+        return;
+    }
+    
+  
+    if (nombre.length > 100) {
+        alert('ERROR: El nombre debe tener 100 caracteres o menos');
+        return;
+    }
+    
+    try {
+       
+        var finalJSON = JSON.parse(productoJsonString);
+    } catch (error) {
+        alert('ERROR: El formato del JSON no es válido');
+        return;
+    }
+    
+    
+    if (!finalJSON.marca || finalJSON.marca.trim() === '') {
+        alert('ERROR: La marca es obligatoria');
+        return;
+    }
+    
+   
+    if (!finalJSON.modelo || finalJSON.modelo.trim() === '') {
+        alert('ERROR: El modelo es obligatorio');
+        return;
+    }
+    
+   
+    if (!finalJSON.precio || parseFloat(finalJSON.precio) <= 99.99) {
+        alert('ERROR: El precio debe ser mayor a 99.99');
+        return;
+    }
+    
+  
+    if (finalJSON.detalles && finalJSON.detalles.length > 250) {
+        alert('ERROR: Los detalles deben tener 250 caracteres o menos');
+        return;
+    }
+    
+    
+    if (!finalJSON.unidades || parseInt(finalJSON.unidades) < 0) {
+        alert('ERROR: Las unidades deben ser mayor o igual a 0');
+        return;
+    }
+    
+    
+    if (finalJSON.imagen && finalJSON.imagen.length > 250) {
+        alert('ERROR: La ruta de la imagen debe tener 250 caracteres o menos');
+        return;
+    }
+    
+    
+    finalJSON['nombre'] = nombre;
+    
+   
+    productoJsonString = JSON.stringify(finalJSON, null, 2);
+
+    
+    var client = getXMLHttpRequest();
+    client.open('POST', './backend/create.php', true);
+    client.setRequestHeader('Content-Type', "application/json;charset=UTF-8");
+    client.onreadystatechange = function () {
+        
+        if (client.readyState == 4 && client.status == 200) {
+            console.log(client.responseText);
+            
+            
+            try {
+                var respuesta = JSON.parse(client.responseText);
+                
+              
+                if (respuesta.status === 'success') {
+                    alert('ÉXITO: ' + respuesta.message);
+                    
+                    document.getElementById('name').value = '';
+                    init(); 
+                } else {
+                    alert('ERROR: ' + respuesta.message);
+                }
+            } catch (error) {
+                alert('Respuesta del servidor: ' + client.responseText);
+            }
+        }
+    };
+    client.send(productoJsonString);
+}
