@@ -24,10 +24,17 @@ function init() {
 $(document).ready(function() {
     init();
     
-    // LISTENER PARA EL FORMULARIO DE AGREGAR PRODUCTO
+    // LISTENER PARA EL FORMULARIO DE AGREGAR/EDITAR PRODUCTO
     $('#product-form').submit(function(e) {
         e.preventDefault();
-        agregarProducto();
+        
+        // Verificar si es edición o agregar nuevo
+        var productId = $('#productId').val();
+        if(productId) {
+            actualizarProducto();
+        } else {
+            agregarProducto();
+        }
     });
     
     // LISTENER PARA EL FORMULARIO DE BÚSQUEDA
@@ -54,6 +61,24 @@ $(document).ready(function() {
             var productId = $(this).closest('tr').attr('productId');
             eliminarProducto(productId);
         }
+    });
+    
+    // LISTENER PARA BOTONES DE EDITAR (delegación de eventos)
+    $(document).on('click', '.product-edit', function() {
+        var row = $(this).closest('tr');
+        var productId = row.attr('productId');
+        
+        // Obtener el producto completo para edición
+        obtenerProducto(productId);
+    });
+    
+    // LISTENER PARA CANCELAR EDICIÓN
+    $('#cancel-edit').click(function() {
+        $('#product-form')[0].reset();
+        $('#description').val(JSON.stringify(baseJSON, null, 2));
+        $('#productId').val('');
+        $('#product-form button[type="submit"]').text('Agregar Producto');
+        $(this).addClass('d-none');
     });
 });
 
@@ -82,6 +107,9 @@ function listarProductos() {
                             <td>${producto.nombre}</td>
                             <td><ul>${descripcion}</ul></td>
                             <td>
+                                <button class="product-edit btn btn-warning btn-sm">
+                                    Editar
+                                </button>
                                 <button class="product-delete btn btn-danger btn-sm">
                                     Eliminar
                                 </button>
@@ -126,6 +154,9 @@ function buscarProducto(search) {
                             <td>${producto.nombre}</td>
                             <td><ul>${descripcion}</ul></td>
                             <td>
+                                <button class="product-edit btn btn-warning btn-sm">
+                                    Editar
+                                </button>
                                 <button class="product-delete btn btn-danger btn-sm">
                                     Eliminar
                                 </button>
@@ -196,6 +227,8 @@ function agregarProducto() {
             // SE LIMPIA EL FORMULARIO
             $('#product-form')[0].reset();
             $('#description').val(JSON.stringify(baseJSON, null, 2));
+            $('#productId').val('');
+            $('#cancel-edit').addClass('d-none');
         },
         error: function(error) {
             console.error('Error al agregar producto:', error);
@@ -228,6 +261,92 @@ function eliminarProducto(id) {
         },
         error: function(error) {
             console.error('Error al eliminar producto:', error);
+        }
+    });
+}
+
+// FUNCIÓN PARA OBTENER UN PRODUCTO Y CARGARLO EN EL FORMULARIO PARA EDITAR
+function obtenerProducto(id) {
+    $.ajax({
+        url: './backend/product-single.php',
+        type: 'GET',
+        data: { id: id },
+        success: function(response) {
+            let producto = JSON.parse(response);
+            
+            if(producto && producto.id) {
+                // Se carga el nombre en el campo correspondiente
+                $('#name').val(producto.nombre);
+                
+                // Se carga el JSON en el textarea
+                let productoJSON = {
+                    "precio": parseFloat(producto.precio),
+                    "unidades": parseInt(producto.unidades),
+                    "modelo": producto.modelo,
+                    "marca": producto.marca,
+                    "detalles": producto.detalles,
+                    "imagen": producto.imagen
+                };
+                
+                $('#description').val(JSON.stringify(productoJSON, null, 2));
+                
+                // Se guarda el ID del producto en el campo hidden
+                $('#productId').val(producto.id);
+                
+                // Cambiar el texto del botón y mostrar botón cancelar
+                $('#product-form button[type="submit"]').text('Actualizar Producto');
+                $('#cancel-edit').removeClass('d-none');
+            }
+        },
+        error: function(error) {
+            console.error('Error al obtener producto:', error);
+        }
+    });
+}
+
+// FUNCIÓN PARA ACTUALIZAR PRODUCTO
+function actualizarProducto() {
+    // SE OBTIENE DESDE EL FORMULARIO EL JSON A ENVIAR
+    var productoJsonString = $('#description').val();
+    // SE CONVIERTE EL JSON DE STRING A OBJETO
+    var finalJSON = JSON.parse(productoJsonString);
+    // SE AGREGA AL JSON EL NOMBRE Y EL ID DEL PRODUCTO
+    finalJSON['id'] = $('#productId').val();
+    finalJSON['nombre'] = $('#name').val();
+    // SE OBTIENE EL STRING DEL JSON FINAL
+    productoJsonString = JSON.stringify(finalJSON, null, 2);
+    
+    $.ajax({
+        url: './backend/product-edit.php',
+        type: 'POST',
+        contentType: 'application/json;charset=UTF-8',
+        data: productoJsonString,
+        success: function(response) {
+            console.log(response);
+            let respuesta = JSON.parse(response);
+            
+            let template_bar = `
+                <li style="list-style: none;">status: ${respuesta.status}</li>
+                <li style="list-style: none;">message: ${respuesta.message}</li>
+            `;
+            
+            // SE HACE VISIBLE LA BARRA DE ESTADO
+            $('#product-result').removeClass('d-none').addClass('d-block');
+            // SE INSERTA LA PLANTILLA PARA LA BARRA DE ESTADO
+            $('#container').html(template_bar);
+            
+            // SE LISTAN TODOS LOS PRODUCTOS
+            listarProductos();
+            
+            // SE LIMPIA EL FORMULARIO
+            $('#product-form')[0].reset();
+            $('#description').val(JSON.stringify(baseJSON, null, 2));
+            $('#productId').val('');
+            $('#product-form button[type="submit"]').text('Agregar Producto');
+            $('#cancel-edit').addClass('d-none');
+        },
+        error: function(error) {
+            console.error('Error al actualizar producto:', error);
         }
     });
 }
