@@ -1,0 +1,63 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="es"><head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>Práctica 4</title>
+</head>
+<body>
+    <h2>Ejercicio 1</h2>
+    <p>Determina cuál de las siguientes variables son válidas y explica por qué:</p>
+    <p>$_myvar,  $_7var,  myvar,  $myvar,  $var7,  $_element1, $house*5</p>
+    <h4>Respuesta:</h4><ul><li>$_myvar es válida porque inicia con guión bajo.</li><li>$_7var es válida porque inicia con guión bajo.</li><li>myvar es inválida porque no tiene el signo de dolar ($).</li><li>$myvar es válida porque inicia con una letra.</li><li>$var7 es válida porque inicia con una letra.</li><li>$_element1 es válida porque inicia con guión bajo.</li><li>$house*5 es inválida porque el símbolo * no está permitido.</li></ul>    <h2>Ejercicio 2</h2>
+    <h4>Bloque inicial</h4><ul><li>$a = ManejadorSQL</li><li>$b = MySQL</li><li>$c = ManejadorSQL</li></ul><h4>Segundo bloque</h4><ul><li>$a = PHP server</li><li>$b = PHP server</li><li>$c = PHP server</li></ul><h4>Explicación</h4><p>$c inicialmente era referencia de $a, por eso ambos compartían el mismo valor. Al reasignar $a y hacer $b referencia de $a, las tres variables apuntan a la misma referencia.</p>
+    <h2>Ejercicio 3</h2>
+    <ul><li>Después de: $a = "PHP5";<br>string(4) "PHP5"
+</li><li>Después de: $z[] = &amp;$a;<br>array(1) {
+  [0]=&gt;
+  &amp;string(4) "PHP5"
+}
+</li><li>Después de: $b = "5a version de PHP";<br>string(17) "5a version de PHP"
+</li><li>Después de: $c = intval($b) * 10;<br>int(50)
+</li><li>Después de: $a .= $b;<br>string(21) "PHP55a version de PHP"
+array(1) {
+  [0]=&gt;
+  &amp;string(21) "PHP55a version de PHP"
+}
+</li><li>Después de: $b = intval($b) * $c;<br>int(250)
+</li><li>Después de: $z[0] = "MySQL";<br>array(1) {
+  [0]=&gt;
+  &amp;string(5) "MySQL"
+}
+string(5) "MySQL"
+</li></ul>
+    <h2>Ejercicio 4</h2>
+    <p>Mostrar las variables del ejercicio anterior usando <code>$GLOBALS</code> y <code>global</code>:</p>
+    <h4>Usando $GLOBALS</h4><ul><li>$a = MySQL (tipo: string)</li><li>$b = 250 (tipo: integer)</li><li>$c = 50 (tipo: integer)</li><li>$z[0] = MySQL (tipo: string)</li></ul><h4>Usando global en función</h4><ul><li>$a = MySQL (tipo: string)</li><li>$b = 250 (tipo: integer)</li><li>$c = 50 (tipo: integer)</li><li>$z[0] = MySQL (tipo: string)</li></ul>
+    <h2>Ejercicio 5</h2>
+    <p>Dar el valor de las variables $a, $b, $c al final del siguiente script:</p>
+    <h4>Valores finales:</h4><ul><li>$a = 9E3 (tipo: string)</li><li>$b = 7 (tipo: integer)</li><li>$c = 9000 (tipo: double)</li></ul><h4>Var_dump de las variables:</h4><pre>string(3) "9E3"
+int(7)
+float(9000)
+</pre>
+    <h2>Ejercicio 6</h2>
+<p>Dar y comprobar el valor booleano de las variables $a, $b, $c, $d, $e y $f y muéstralas usando la función var_dump(&lt;datos&gt;).</p>
+
+<h4>Valores booleanos con var_dump()</h4><ul><li>$a = string(1) "0"
+</li><li>$b = string(4) "TRUE"
+</li><li>$c = bool(false)
+</li><li>$d = bool(true)
+</li><li>$e = bool(false)
+</li><li>$f = bool(true)
+</li></ul><h4>Transformar booleanos $c y $e a un formato para echo</h4>$c = false<br>$e = false<br>
+<h2>Ejercicio 7</h2>
+<p>Usando la variable predefinida <code>$_SERVER</code>, determina:</p>
+<ul>
+    <li>a. La versión de Apache y PHP</li>
+    <li>b. El nombre del sistema operativo (servidor)</li>
+    <li>c. El idioma del navegador (cliente)</li>
+</ul>
+
+<h4>Resultados:</h4><ul><li>Versión Apache: Apache/2.4.58 (Win64) OpenSSL/3.1.3 PHP/8.2.12</li><li>Versión PHP: 8.2.12</li><li>Sistema operativo del servidor: Windows NT JESSICA 10.0 build 26100 (Windows 11) AMD64</li><li>Idioma del navegador: es-419,es;q=0.9,es-ES;q=0.8,en;q=0.7,en-GB;q=0.6,en-US;q=0.5,es-MX;q=0.4</li></ul><p>
+    <a href="https://validator.w3.org/check?uri=referer"><img src="https://www.w3.org/Icons/valid-xhtml11" alt="Valid XHTML 1.1" height="31" width="88"></a>
+  </p>
+
+
+</body></html>

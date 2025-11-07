@@ -26,7 +26,7 @@
 
     if (!empty($tope) && is_numeric($tope)) { 
         
-        @$link = new mysqli('localhost', 'root', '78]*Es.-uhWJX-xV', 'marketzone');
+        @$link = new mysqli('localhost', 'root', '12345678a', 'marketzone');
         
         if ($link->connect_errno) {
             die('<p class="alert alert-danger">Falló la conexión: ' . $link->connect_error . '</p>');
