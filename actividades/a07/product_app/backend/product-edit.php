@@ -3,7 +3,7 @@
     require_once __DIR__ . '/myapi/Products.php';
 
     $prodObj = new Products('marketzone');
-    $prodObj->edit(file_get_contents('php://input'));
+    $prodObj->edit($_POST);
 
     echo $prodObj->getData();
 ?>

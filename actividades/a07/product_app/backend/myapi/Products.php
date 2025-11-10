@@ -92,67 +92,78 @@ class Products extends DataBase {
     }
 
     
-    public function add($jsonOBJ){
-        $this->data = array();
+   // Agregar producto
+public function add($jsonOBJ){
+    $this->data = array();
+    
+    // Si viene como string JSON, decodificar
+    if(is_string($jsonOBJ)) {
         $jsonOBJ = json_decode($jsonOBJ, true);
-        
-       
-        $nombre = $this->conexion->real_escape_string($jsonOBJ['nombre']);
-        $result = $this->conexion->query("SELECT * FROM productos WHERE nombre = '{$nombre}' AND eliminado = 0");
-        
-        if($result->num_rows == 0) {
-            $sql = "INSERT INTO productos (nombre, marca, modelo, precio, detalles, unidades, imagen) 
-                    VALUES (
-                        '{$this->conexion->real_escape_string($jsonOBJ['nombre'])}',
-                        '{$this->conexion->real_escape_string($jsonOBJ['marca'])}',
-                        '{$this->conexion->real_escape_string($jsonOBJ['modelo'])}',
-                        {$jsonOBJ['precio']},
-                        '{$this->conexion->real_escape_string($jsonOBJ['detalles'])}',
-                        {$jsonOBJ['unidades']},
-                        '{$this->conexion->real_escape_string($jsonOBJ['imagen'])}'
-                    )";
-            
-            if($this->conexion->query($sql)){
-                $this->data['status'] = "success";
-                $this->data['message'] = "Producto agregado correctamente";
-            } else {
-                $this->data['status'] = "error";
-                $this->data['message'] = "ERROR: No se ejecutó $sql. " . mysqli_error($this->conexion);
-            }
-        } else {
-            $this->data['status'] = "error";
-            $this->data['message'] = "ERROR: El producto ya existe";
-        }
-        
-        $result->free();
-        $this->conexion->close();
     }
-
-  
-    public function edit($jsonOBJ){
-        $this->data = array();
-        $jsonOBJ = json_decode($jsonOBJ, true);
-        
-        $sql = "UPDATE productos SET 
-                nombre = '{$this->conexion->real_escape_string($jsonOBJ['nombre'])}',
-                marca = '{$this->conexion->real_escape_string($jsonOBJ['marca'])}',
-                modelo = '{$this->conexion->real_escape_string($jsonOBJ['modelo'])}',
-                precio = {$jsonOBJ['precio']},
-                detalles = '{$this->conexion->real_escape_string($jsonOBJ['detalles'])}',
-                unidades = {$jsonOBJ['unidades']},
-                imagen = '{$this->conexion->real_escape_string($jsonOBJ['imagen'])}'
-                WHERE id = {$jsonOBJ['id']}";
+    // Si no, asumir que ya es un array (viene de $_POST)
+    
+    // Validar que el nombre no exista
+    $nombre = $this->conexion->real_escape_string($jsonOBJ['nombre']);
+    $result = $this->conexion->query("SELECT * FROM productos WHERE nombre = '{$nombre}' AND eliminado = 0");
+    
+    if($result->num_rows == 0) {
+        $sql = "INSERT INTO productos (nombre, marca, modelo, precio, detalles, unidades, imagen) 
+                VALUES (
+                    '{$this->conexion->real_escape_string($jsonOBJ['nombre'])}',
+                    '{$this->conexion->real_escape_string($jsonOBJ['marca'])}',
+                    '{$this->conexion->real_escape_string($jsonOBJ['modelo'])}',
+                    {$jsonOBJ['precio']},
+                    '{$this->conexion->real_escape_string($jsonOBJ['detalles'])}',
+                    {$jsonOBJ['unidades']},
+                    '{$this->conexion->real_escape_string($jsonOBJ['imagen'])}'
+                )";
         
         if($this->conexion->query($sql)){
             $this->data['status'] = "success";
-            $this->data['message'] = "Producto actualizado correctamente";
+            $this->data['message'] = "Producto agregado correctamente";
         } else {
             $this->data['status'] = "error";
             $this->data['message'] = "ERROR: No se ejecutó $sql. " . mysqli_error($this->conexion);
         }
-        
-        $this->conexion->close();
+    } else {
+        $this->data['status'] = "error";
+        $this->data['message'] = "ERROR: El producto ya existe";
     }
+    
+    $result->free();
+    $this->conexion->close();
+}
+
+  
+    // Editar producto
+public function edit($jsonOBJ){
+    $this->data = array();
+    
+    // Si viene como string JSON, decodificar
+    if(is_string($jsonOBJ)) {
+        $jsonOBJ = json_decode($jsonOBJ, true);
+    }
+    
+    $sql = "UPDATE productos SET 
+            nombre = '{$this->conexion->real_escape_string($jsonOBJ['nombre'])}',
+            marca = '{$this->conexion->real_escape_string($jsonOBJ['marca'])}',
+            modelo = '{$this->conexion->real_escape_string($jsonOBJ['modelo'])}',
+            precio = {$jsonOBJ['precio']},
+            detalles = '{$this->conexion->real_escape_string($jsonOBJ['detalles'])}',
+            unidades = {$jsonOBJ['unidades']},
+            imagen = '{$this->conexion->real_escape_string($jsonOBJ['imagen'])}'
+            WHERE id = {$jsonOBJ['id']}";
+    
+    if($this->conexion->query($sql)){
+        $this->data['status'] = "success";
+        $this->data['message'] = "Producto actualizado correctamente";
+    } else {
+        $this->data['status'] = "error";
+        $this->data['message'] = "ERROR: No se ejecutó $sql. " . mysqli_error($this->conexion);
+    }
+    
+    $this->conexion->close();
+}
 
    
     public function delete($id){
