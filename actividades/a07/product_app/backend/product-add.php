@@ -1,9 +1,16 @@
 <?php
-    use TECWEB\MYAPI\Products as Products;
-    require_once __DIR__ . '/myapi/Products.php';
+  
+    require_once __DIR__ . '/../vendor/autoload.php';
+    
+    use App\Create\Create;
 
-    $prodObj = new Products('marketzone');
-    $prodObj->add($_POST);
+    $create = new Create();
 
-    echo $prodObj->getData();
+    if(isset($_POST['nombre'])) {
+       
+        $producto = json_decode(json_encode($_POST));  
+        
+        $create->add($producto);
+    }
+    echo $create->getData();
 ?>
