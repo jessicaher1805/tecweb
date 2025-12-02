@@ -16,7 +16,7 @@ require_once __DIR__ . '/Update/Update.php';
 require_once __DIR__ . '/Delete/Delete.php';
 
 $app = AppFactory::create();
-
+$app->setBasePath('/tecweb/actividades/a09/product_app/backend');
 
 $app->addBodyParsingMiddleware();
 
