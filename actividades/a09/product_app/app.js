@@ -1,36 +1,25 @@
-var baseJSON = {
-    "precio": 0.0,
-    "unidades": 1,
-    "modelo": "XX-000",
-    "marca": "NA",
-    "detalles": "NA",
-    "imagen": "img/default.png"
-};
-
 $(document).ready(function(){
     let edit = false;
+    
+    const baseURL = '/tecweb/actividades/a09/product_app/backend';
 
-    let JsonString = JSON.stringify(baseJSON, null, 2);
-    $('#description').val(JsonString);
     $('#product-result').hide();
     listarProductos();
 
     function listarProductos() {
         $.ajax({
-            url: './backend/products',
+            url: baseURL + '/products',
             type: 'GET',
             success: function(response) {
-                console.log(response);
+                console.log('Respuesta recibida:', response);
                 
-                const productos = JSON.parse(response);
+
+                const productos = typeof response === 'string' ? JSON.parse(response) : response;
             
-               
                 if(Object.keys(productos).length > 0) {
-                  
                     let template = '';
 
                     productos.forEach(producto => {
-                       
                         let descripcion = '';
                         descripcion += '<li>precio: '+producto.precio+'</li>';
                         descripcion += '<li>unidades: '+producto.unidades+'</li>';
@@ -53,10 +42,15 @@ $(document).ready(function(){
                     });
                     
                     $('#products').html(template);
+                } else {
+                    $('#products').html('<tr><td colspan="4" class="text-center">No hay productos registrados</td></tr>');
                 }
             },
             error: function(xhr, status, error) {
                 console.error('Error al listar productos:', error);
+                console.error('Status:', status);
+                console.error('Respuesta completa:', xhr.responseText);
+                $('#products').html('<tr><td colspan="4" class="text-center text-danger">Error al cargar productos</td></tr>');
             }
         });
     }
@@ -65,21 +59,17 @@ $(document).ready(function(){
         if($('#search').val()) {
             let search = $('#search').val();
             $.ajax({
-                url: './backend/products/' + search,
+                url: baseURL + '/products/' + search,
                 type: 'GET',
                 success: function (response) {
                     if(!response.error) {
-                       
-                        const productos = JSON.parse(response);
-                        
+                        const productos = typeof response === 'string' ? JSON.parse(response) : response;
                         
                         if(Object.keys(productos).length > 0) {
-                            
                             let template = '';
                             let template_bar = '';
 
                             productos.forEach(producto => {
-                                
                                 let descripcion = '';
                                 descripcion += '<li>precio: '+producto.precio+'</li>';
                                 descripcion += '<li>unidades: '+producto.unidades+'</li>';
@@ -100,16 +90,14 @@ $(document).ready(function(){
                                     </tr>
                                 `;
 
-                                template_bar += `
-                                    <li>${producto.nombre}</li>
-                                `;
+                                template_bar += `<li>${producto.nombre}</li>`;
                             });
                            
                             $('#product-result').show();
-                           
                             $('#container').html(template_bar);
-                            
                             $('#products').html(template);    
+                        } else {
+                            $('#products').html('<tr><td colspan="4" class="text-center">No se encontraron resultados</td></tr>');
                         }
                     }
                 },
@@ -127,42 +115,53 @@ $(document).ready(function(){
     $('#product-form').submit(e => {
         e.preventDefault();
 
-       
-        let postData = JSON.parse($('#description').val());
-       
-        postData['nombre'] = $('#name').val();
-        postData['id'] = $('#productId').val();
+
+        let postData = {
+            'nombre': $('#name').val(),
+            'marca': $('#marca').val(),
+            'modelo': $('#modelo').val(),
+            'precio': $('#precio').val() || 0.0,
+            'unidades': $('#unidades').val() || 1,
+            'detalles': $('#detalles').val() || 'NA',
+            'imagen': $('#imagen').val() || 'img/default.png'
+        };
 
 
-        const url = './backend/product';
+        if(edit) {
+            postData['id'] = $('#productId').val();
+        }
+
         const method = edit === false ? 'POST' : 'PUT';
         
         $.ajax({
-            url: url,
+            url: baseURL + '/product',
             type: method,
             contentType: 'application/x-www-form-urlencoded',
             data: postData,
             success: function(response) {
                 console.log(response);
                 
-                let respuesta = JSON.parse(response);
-               
+                let respuesta = typeof response === 'string' ? JSON.parse(response) : response;
                 let template_bar = '';
                 template_bar += `
                     <li style="list-style: none;">status: ${respuesta.status}</li>
                     <li style="list-style: none;">message: ${respuesta.message}</li>
                 `;
                
+              
                 $('#name').val('');
-                $('#description').val(JsonString);
+                $('#marca').val('');
+                $('#modelo').val('');
+                $('#precio').val('');
+                $('#unidades').val('');
+                $('#detalles').val('');
+                $('#imagen').val('');
                 $('#productId').val('');
                
                 $('#product-result').show();
-                
                 $('#container').html(template_bar);
                 
                 listarProductos();
-               
                 edit = false;
             },
             error: function(xhr, status, error) {
@@ -183,13 +182,13 @@ $(document).ready(function(){
             const id = $(element).attr('productId');
             
             $.ajax({
-                url: './backend/product',
+                url: baseURL + '/product',
                 type: 'DELETE',
                 contentType: 'application/x-www-form-urlencoded',
                 data: {id: id},
                 success: function(response) {
                     console.log(response);
-                    let respuesta = JSON.parse(response);
+                    let respuesta = typeof response === 'string' ? JSON.parse(response) : response;
                     let template_bar = '';
                     template_bar += `
                         <li style="list-style: none;">status: ${respuesta.status}</li>
@@ -208,27 +207,26 @@ $(document).ready(function(){
     });
 
     $(document).on('click', '.product-item', (e) => {
+        e.preventDefault();
+        
         const element = $(this)[0].activeElement.parentElement.parentElement;
         const id = $(element).attr('productId');
         
         $.ajax({
-            url: './backend/product/' + id,
+            url: baseURL + '/product/' + id,
             type: 'GET',
             success: function(response) {
+                let product = typeof response === 'string' ? JSON.parse(response) : response;
                 
-                let product = JSON.parse(response);
                 
                 $('#name').val(product.nombre);
-                
+                $('#marca').val(product.marca);
+                $('#modelo').val(product.modelo);
+                $('#precio').val(product.precio);
+                $('#unidades').val(product.unidades);
+                $('#detalles').val(product.detalles);
+                $('#imagen').val(product.imagen);
                 $('#productId').val(product.id);
-                
-                delete(product.nombre);
-                delete(product.eliminado);
-                delete(product.id);
-                
-                let JsonString = JSON.stringify(product, null, 2);
-              
-                $('#description').val(JsonString);
                 
                 edit = true;
             },
@@ -237,6 +235,5 @@ $(document).ready(function(){
                 alert('Error al cargar el producto');
             }
         });
-        e.preventDefault();
     });    
 });
